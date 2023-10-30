@@ -1,11 +1,13 @@
 'use client'
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect} from "react"
 
 export default function Home() {
   const [expression, setExpression] = useState('')
   const [calcularRaizQuadrada, setCalcularRaizQuadrada] = useState(false)
+  const [entradaInvalida, setEntradaInvalida] = useState(false)
 
   const valueArrow = (e) => {
+    setEntradaInvalida(false)
     switch (/\d$/.test(e.target.value)) {
       case true:
         setExpression(expression + e.target.value)
@@ -16,31 +18,55 @@ export default function Home() {
     }
   }
 
+  useEffect(() => {
+    if (/entrada invalida/gi.test(expression) && entradaInvalida === false) {
+      setExpression(expression.replace(/entrada invalida/gi, ''))
+    }
+  }, [expression])
+
   const equal = () => {
     let resultado = eval(expression)
     setExpression(resultado.toString())
-    //erro para resolver: ao executar essa linha o console vai informar o valor do expression antes do componentes atribuir o valor do resultado para ele
   }
 
   const reset = () => {
     setExpression('')
   }
+
+  const numberSquared = () => {
+    let potentiation = Math.pow(eval(expression), 2)
+    setExpression(potentiation.toString())
+  }
+
   const deleteLast = () => {
     setExpression(expression.substring(0, expression.length - 1))
   }
 
+  const invalidExpression = () => {
+    setEntradaInvalida(true)
+    setExpression('entrada invalida')
+  }
+
   const squareRoot = () => {
+    if (eval(expression) > 0) {
+      equal()
+      setCalcularRaizQuadrada(true)
+    } else {
+      invalidExpression()
+    }
+  }
+
+  /*const squareRoot = () => {
     equal()
     setCalcularRaizQuadrada(true)
-    console.log(expression)
-    //setExpression(Math.sqrt(eval(expression).toString))*/
-  }
+  }*/
 
   useEffect(() => {
     if (calcularRaizQuadrada) {
-      setExpression(Math.sqrt(eval(expression)))
+      setExpression(Math.sqrt(expression).toString())
       setCalcularRaizQuadrada(false)
     }
+
   }, [calcularRaizQuadrada])
 
   return (
@@ -57,7 +83,7 @@ export default function Home() {
           <button value='7' onClick={deleteLast}>&lt;</button>
 
           <button value='' onClick={valueArrow}>1/x</button>
-          <button value='^2' onClick={valueArrow}>x²</button>
+          <button value='' onClick={numberSquared}>x²</button>
           <button value='' onClick={squareRoot}>²√x</button>
           <button value='/' onClick={valueArrow}>&#247;</button>
 
