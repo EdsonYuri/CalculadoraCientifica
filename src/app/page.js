@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect} from "react"
+import { useState, useEffect } from "react"
 
 export default function Home() {
   const [expression, setExpression] = useState('')
@@ -18,56 +18,40 @@ export default function Home() {
     }
   }
 
+  const calculator = {
+    equal: () => {
+      const resultado = expression.replace(/\b0\d+\b/g, (match) => Number(match));
+      setExpression(eval(resultado).toString())
+    },
+    reset: () => { setExpression('') },
+    numberSquared: () => {
+      let potentiation = Math.pow(eval(expression), 2)
+      setExpression(potentiation.toString())
+    },
+    deleteLast: () => { setExpression(expression.substring(0, expression.length - 1)) },
+    squareRoot: () => {
+      calculator.equal()
+      setCalcularRaizQuadrada(true)
+    }
+  }
+
   useEffect(() => {
     if (/entrada invalida/gi.test(expression) && entradaInvalida === false) {
       setExpression(expression.replace(/entrada invalida/gi, ''))
     }
   }, [expression])
 
-  const equal = () => {
-    let resultado = eval(expression)
-    setExpression(resultado.toString())
-  }
-
-  const reset = () => {
-    setExpression('')
-  }
-
-  const numberSquared = () => {
-    let potentiation = Math.pow(eval(expression), 2)
-    setExpression(potentiation.toString())
-  }
-
-  const deleteLast = () => {
-    setExpression(expression.substring(0, expression.length - 1))
-  }
+  useEffect(() => {
+    if (calcularRaizQuadrada) {
+      expression > 0 ? setExpression(Math.sqrt(expression).toString()) : invalidExpression()
+    }
+    setCalcularRaizQuadrada(false)
+  }, [calcularRaizQuadrada])
 
   const invalidExpression = () => {
     setEntradaInvalida(true)
     setExpression('entrada invalida')
   }
-
-  const squareRoot = () => {
-    if (eval(expression) > 0) {
-      equal()
-      setCalcularRaizQuadrada(true)
-    } else {
-      invalidExpression()
-    }
-  }
-
-  /*const squareRoot = () => {
-    equal()
-    setCalcularRaizQuadrada(true)
-  }*/
-
-  useEffect(() => {
-    if (calcularRaizQuadrada) {
-      setExpression(Math.sqrt(expression).toString())
-      setCalcularRaizQuadrada(false)
-    }
-
-  }, [calcularRaizQuadrada])
 
   return (
     <main className={"flex items-center justify-center h-screen bg-slate-900"}>
@@ -79,12 +63,12 @@ export default function Home() {
         <div className="grid grid-cols-4 gap-2">
           <button value='%' onClick={valueArrow}>%</button>
           <button onClick={valueArrow}>CE</button>
-          <button onClick={reset}>C</button>
-          <button value='7' onClick={deleteLast}>&lt;</button>
+          <button onClick={calculator.reset}>C</button>
+          <button value='7' onClick={calculator.deleteLast}>&lt;</button>
 
           <button value='' onClick={valueArrow}>1/x</button>
-          <button value='' onClick={numberSquared}>x²</button>
-          <button value='' onClick={squareRoot}>²√x</button>
+          <button value='' onClick={calculator.numberSquared}>x²</button>
+          <button value='' onClick={calculator.squareRoot}>²√x</button>
           <button value='/' onClick={valueArrow}>&#247;</button>
 
           <button value='7' onClick={valueArrow}>7</button>
@@ -105,7 +89,7 @@ export default function Home() {
           <button value='' onClick={valueArrow}>+/-</button>
           <button value='0' onClick={valueArrow}>0</button>
           <button value='.' onClick={valueArrow}>,</button>
-          <button onClick={equal}>=</button>
+          <button onClick={calculator.equal}>=</button>
         </div>
       </div>
     </main>
